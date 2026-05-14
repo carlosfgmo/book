@@ -36,7 +36,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     { href: '/dashboard/lector/perfil',  label: 'Mis datos' },
   ]
 
-  const navLinks = isAdmin ? adminLinks : isWriter ? writerLinks : readerLinks
+  const sections: { label: string; links: typeof writerLinks }[] = []
+  if (isAdmin)  sections.push({ label: 'Admin',    links: adminLinks })
+  if (isWriter) sections.push({ label: 'Escritor', links: writerLinks })
+  if (!isAdmin && !isWriter) sections.push({ label: 'Lector', links: readerLinks })
+
+  const roleLabel = [isAdmin && 'Administrador', isWriter && 'Escritor']
+    .filter(Boolean).join(' · ') || 'Lector'
 
   return (
     <div className="min-h-screen flex bg-stone-100">
@@ -45,20 +51,29 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="p-4 border-b border-stone-200">
           <Link href="/" className="font-bold text-stone-900 text-sm">📚 Achachaw Books</Link>
           <p className="text-xs text-stone-400 mt-0.5 truncate">{profile?.full_name}</p>
-          <p className="text-xs text-stone-400">
-            {isAdmin ? 'Administrador' : isWriter ? 'Escritor' : 'Lector'}
-          </p>
+          <p className="text-xs text-stone-400">{roleLabel}</p>
         </div>
 
-        <nav className="flex-1 p-3 space-y-0.5">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="block px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-            >
-              {link.label}
-            </Link>
+        <nav className="flex-1 p-3 space-y-3">
+          {sections.map((section) => (
+            <div key={section.label}>
+              {sections.length > 1 && (
+                <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider px-3 mb-1">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block px-3 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
