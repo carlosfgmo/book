@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import OrderStatusButton from './OrderStatusButton'
 
@@ -7,18 +8,31 @@ export default async function EscritorPedidosPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: items } = await supabase
-    .from('order_item')
-    .select(`
-      id, quantity, unit_price, delivery_status,
-      book(id, title, delivery_type, author_id),
-      order:order(id, status, delivery_mode, shipping_address, created_at,
-        buyer:user(full_name, phone, address),
-        payment(status, method)
-      )
-    `)
-    .eq('book.author_id', user.id)
-    .order('created_at', { ascending: false })
+  const admin = createAdminClient()
+
+  // Get all books by this author first
+  const { data: authorBooks } = await admin
+    .from('book')
+    .select('id')
+    .eq('author_id', user.id)
+
+  const bookIds = (authorBooks ?? []).map((b: any) => b.id)
+
+  const { data: items } = bookIds.length > 0
+    ? await admin
+        .from('order_item')
+        .select(`
+          id, quantity, unit_price, delivery_status,
+          book(id, title, delivery_type),
+          order:order(id, status, delivery_mode, shipping_address, created_at,
+            buyer_email, buyer_phone, pdf_delivery_method, physical_address,
+            buyer:user(full_name, phone, address),
+            payment(status, method)
+          )
+        `)
+        .in('book_id', bookIds)
+        .order('id', { ascending: false })
+    : { data: [] }
 
   return (
     <div className="max-w-4xl">
@@ -58,8 +72,9 @@ export default async function EscritorPedidosPage() {
                 <div className="grid grid-cols-2 gap-3 text-sm mb-4">
                   <div>
                     <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Comprador</p>
-                    <p className="text-stone-800">{buyer?.full_name}</p>
-                    {buyer?.phone && <p className="text-stone-500 text-xs">{buyer.phone}</p>}
+                    <p className="text-stone-800">{buyer?.full_name ?? order?.buyer_email ?? '—'}</p>
+                    <p className="text-stone-500 text-xs">{order?.buyer_email ?? buyer?.email}</p>
+                    <p className="text-stone-500 text-xs">{order?.buyer_phone ?? buyer?.phone}</p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Entrega</p>
