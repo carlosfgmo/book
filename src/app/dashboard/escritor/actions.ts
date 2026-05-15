@@ -115,6 +115,25 @@ export async function updateOrderItemStatus(itemId: string, status: string): Pro
 
   if (updateError) return { error: updateError.message }
 
+  // Update order status based on delivery
+  const orderId = (await admin.from('order_item').select('order_id').eq('id', itemId).single()).data?.order_id
+  if (orderId) {
+    if (status === 'delivered') {
+      // Check if ALL items in the order are now delivered
+      const { data: remaining } = await admin
+        .from('order_item')
+        .select('id')
+        .eq('order_id', orderId)
+        .neq('delivery_status', 'delivered')
+      if (remaining?.length === 0) {
+        await admin.from('order').update({ status: 'completed' }).eq('id', orderId)
+      }
+    } else {
+      // Reverted — set order back to processing
+      await admin.from('order').update({ status: 'processing' }).eq('id', orderId)
+    }
+  }
+
   revalidatePath('/dashboard/escritor/pedidos')
 }
 
