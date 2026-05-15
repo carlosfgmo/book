@@ -30,6 +30,8 @@ export default async function CheckoutPage({
 
   if (!order) notFound()
 
+  console.log('[checkout]', { orderId, buyerId: order.buyer_id, realUserId, willRedirect: !!(order.buyer_id && order.buyer_id !== realUserId) })
+
   // If order belongs to a registered user, require them to be logged in as that user
   if (order.buyer_id && order.buyer_id !== realUserId) {
     redirect(`/login?next=/checkout/${orderId}`)
