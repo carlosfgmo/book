@@ -19,8 +19,10 @@ export default function BookForm({ categories, book, deliveryPreference = 'platf
   const [state, formAction, pending] = useActionState(action, null)
 
   const [coverUrl, setCoverUrl] = useState(book?.cover_url ?? '')
+  const [backCoverUrl, setBackCoverUrl] = useState(book?.back_cover_url ?? '')
   const [pdfUrl, setPdfUrl] = useState(book?.pdf_url ?? '')
   const [uploadingCover, setUploadingCover] = useState(false)
+  const [uploadingBackCover, setUploadingBackCover] = useState(false)
   const [uploadingPdf, setUploadingPdf] = useState(false)
   const [deliveryType, setDeliveryType] = useState(book?.delivery_type ?? 'pdf')
   const [status, setStatus] = useState(book?.status ?? 'draft')
@@ -60,6 +62,7 @@ export default function BookForm({ categories, book, deliveryPreference = 'platf
     <form action={formAction} onSubmit={handleSubmit} className="space-y-5 bg-white rounded-xl border border-stone-200 p-6">
       {book && <input type="hidden" name="id" value={book.id} />}
       <input type="hidden" name="cover_url" value={coverUrl} />
+      <input type="hidden" name="back_cover_url" value={backCoverUrl} />
       <input type="hidden" name="pdf_url" value={pdfUrl} />
 
       <div className="grid grid-cols-2 gap-4">
@@ -165,6 +168,25 @@ export default function BookForm({ categories, book, deliveryPreference = 'platf
           {coverUrl && <p className="text-xs text-green-600 mt-1">✓ Portada cargada</p>}
         </div>
 
+        {/* Contraportada */}
+        <div className="col-span-2">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            Contraportada
+            <span className="ml-1.5 text-xs text-stone-400 font-normal">(opcional)</span>
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) uploadFile(f, 'covers', setBackCoverUrl, setUploadingBackCover)
+            }}
+            className="w-full text-sm text-stone-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200"
+          />
+          {uploadingBackCover && <p className="text-xs text-stone-400 mt-1">Subiendo contraportada...</p>}
+          {backCoverUrl && <p className="text-xs text-green-600 mt-1">✓ Contraportada cargada</p>}
+        </div>
+
         {/* PDF */}
         {(deliveryType === 'pdf' || deliveryType === 'both') && (
           <div className="col-span-2">
@@ -197,7 +219,7 @@ export default function BookForm({ categories, book, deliveryPreference = 'platf
 
       <button
         type="submit"
-        disabled={pending || uploadingCover || uploadingPdf}
+        disabled={pending || uploadingCover || uploadingBackCover || uploadingPdf}
         className="w-full py-2.5 bg-stone-900 text-white font-semibold rounded-xl hover:bg-stone-700 transition-colors disabled:opacity-60"
       >
         {pending ? 'Guardando...' : book ? 'Guardar cambios' : 'Publicar libro'}

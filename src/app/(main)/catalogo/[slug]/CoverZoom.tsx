@@ -3,11 +3,11 @@
 import Image from 'next/image'
 import { useRef, useState, useEffect } from 'react'
 
-type Props = { src: string; alt: string }
+type Props = { src: string; alt: string; label?: string }
 
 const SCALE = 2.5
 
-export default function CoverZoom({ src, alt }: Props) {
+export default function CoverZoom({ src, alt, label = 'PORTADA' }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [origin, setOrigin]   = useState('50% 50%')
   const [active, setActive]   = useState(false)
@@ -75,7 +75,7 @@ export default function CoverZoom({ src, alt }: Props) {
         onClick={openLightbox}
         className="mt-2 w-full text-xs text-stone-400 hover:text-stone-700 transition-colors text-center"
       >
-        VER PORTADA COMPLETA ↗
+        VER {label} COMPLETA ↗
       </button>
 
       {/* Lightbox */}

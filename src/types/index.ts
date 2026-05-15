@@ -35,6 +35,7 @@ export interface Book {
   status: BookStatus
   delivery_type: DeliveryType
   cover_url: string | null
+  back_cover_url: string | null
   pdf_url: string | null
   stock: number | null
   release_date: string | null

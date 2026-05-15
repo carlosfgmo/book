@@ -49,14 +49,22 @@ export default async function BookDetailPage({
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
       <div className="grid md:grid-cols-[280px_1fr] gap-8">
-        {/* Portada */}
-        <div>
+        {/* Portada + Contraportada */}
+        <div className="space-y-4">
           {book.cover_url ? (
-            <CoverZoom src={book.cover_url} alt={book.title} />
+            <CoverZoom src={book.cover_url} alt={book.title} label="PORTADA" />
           ) : (
             <div className="aspect-[2/3] rounded-xl overflow-hidden bg-stone-100 relative shadow-md flex items-center justify-center text-7xl">
               📖
             </div>
+          )}
+
+          {book.back_cover_url && (
+            <CoverZoom
+              src={book.back_cover_url}
+              alt={`Contraportada de ${book.title}`}
+              label="CONTRAPORTADA"
+            />
           )}
         </div>
 

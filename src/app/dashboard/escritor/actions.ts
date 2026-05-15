@@ -30,10 +30,11 @@ export async function createBook(
   const presale_price = formData.get('presale_price') ? parseFloat(formData.get('presale_price') as string) : null
   const status = formData.get('status') as string
   const delivery_type = formData.get('delivery_type') as string
-  const cover_url = formData.get('cover_url') as string || null
-  const pdf_url = formData.get('pdf_url') as string || null
-  const stock = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
-  const release_date = formData.get('release_date') as string || null
+  const cover_url      = formData.get('cover_url') as string || null
+  const back_cover_url = formData.get('back_cover_url') as string || null
+  const pdf_url        = formData.get('pdf_url') as string || null
+  const stock          = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
+  const release_date   = formData.get('release_date') as string || null
 
   const hasPdf = delivery_type === 'pdf' || delivery_type === 'both'
   if (hasPdf && !pdf_url) {
@@ -54,6 +55,7 @@ export async function createBook(
     status,
     delivery_type,
     cover_url,
+    back_cover_url,
     pdf_url,
     stock,
     release_date: release_date || null,
@@ -81,10 +83,11 @@ export async function updateBook(
   const presale_price = formData.get('presale_price') ? parseFloat(formData.get('presale_price') as string) : null
   const status = formData.get('status') as string
   const delivery_type = formData.get('delivery_type') as string
-  const cover_url = formData.get('cover_url') as string || null
-  const pdf_url = formData.get('pdf_url') as string || null
-  const stock = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
-  const release_date = formData.get('release_date') as string || null
+  const cover_url      = formData.get('cover_url') as string || null
+  const back_cover_url = formData.get('back_cover_url') as string || null
+  const pdf_url        = formData.get('pdf_url') as string || null
+  const stock          = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
+  const release_date   = formData.get('release_date') as string || null
 
   const hasPdf = delivery_type === 'pdf' || delivery_type === 'both'
   if (hasPdf && !pdf_url) {
@@ -96,7 +99,7 @@ export async function updateBook(
 
   const { error } = await supabase
     .from('book')
-    .update({ title, description, category_id, price, presale_price, status, delivery_type, cover_url, pdf_url, stock, release_date: release_date || null })
+    .update({ title, description, category_id, price, presale_price, status, delivery_type, cover_url, back_cover_url, pdf_url, stock, release_date: release_date || null })
     .eq('id', id)
     .eq('author_id', user.id)
 
