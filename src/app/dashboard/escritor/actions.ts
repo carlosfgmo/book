@@ -90,27 +90,30 @@ export async function updateBook(
   redirect('/dashboard/escritor')
 }
 
-export async function updateOrderItemStatus(itemId: string, status: string) {
+export async function updateOrderItemStatus(itemId: string, status: string): Promise<{ error?: string } | void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) return { error: 'No autenticado' }
 
   const admin = createAdminClient()
 
-  // Verify the writer owns the book in this order item
-  const { data: item } = await admin
+  const { data: item, error: fetchError } = await admin
     .from('order_item')
-    .select('book(author_id)')
+    .select('book_id, book(author_id)')
     .eq('id', itemId)
     .single()
 
-  const book = item?.book as { author_id: string } | null
-  if (book?.author_id !== user.id) return
+  if (fetchError) return { error: fetchError.message }
 
-  await admin
+  const book = Array.isArray(item?.book) ? item.book[0] : item?.book as { author_id: string } | null
+  if (book?.author_id !== user.id) return { error: `No autorizado: author=${book?.author_id} user=${user.id}` }
+
+  const { error: updateError } = await admin
     .from('order_item')
     .update({ delivery_status: status })
     .eq('id', itemId)
+
+  if (updateError) return { error: updateError.message }
 
   revalidatePath('/dashboard/escritor/pedidos')
 }
