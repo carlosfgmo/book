@@ -31,7 +31,7 @@ export default async function OrderDetailPage({
 
   const { data: order } = await admin
     .from('order')
-    .select('*, items:order_item(*, book(title, cover_url, delivery_type, slug))')
+    .select('*, items:order_item(*, book(title, cover_url, delivery_type, pdf_url, slug))')
     .eq('id', orderId)
     .single()
 
@@ -74,13 +74,24 @@ export default async function OrderDetailPage({
               <div>
                 <p className="text-sm font-medium text-stone-800">{item.book?.title}</p>
                 <p className="text-xs text-stone-400">{itemStatusLabel[item.delivery_status]}</p>
-                {item.delivery_status === 'delivered' && item.download_token && (
-                  <a
-                    href={`/api/download/${item.download_token}`}
-                    className="text-xs text-blue-600 underline mt-0.5 inline-block"
-                  >
-                    Descargar PDF
-                  </a>
+                {item.delivery_status === 'delivered' && item.book?.pdf_url &&
+                  (item.book.delivery_type === 'pdf' || item.book.delivery_type === 'both') && (
+                  <div className="flex items-center gap-3 mt-1">
+                    <Link
+                      href={`/leer/${orderId}/${item.id}`}
+                      className="text-xs font-medium bg-stone-900 text-white px-2.5 py-1 rounded-lg hover:bg-stone-700 transition-colors"
+                    >
+                      Leer ahora
+                    </Link>
+                    {item.download_token && (
+                      <a
+                        href={`/api/download/${item.download_token}`}
+                        className="text-xs text-stone-400 hover:text-stone-600 underline transition-colors"
+                      >
+                        Descargar PDF
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
