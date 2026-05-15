@@ -5,7 +5,7 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
 type Props = {
   url: string
@@ -18,7 +18,7 @@ export default function PdfReader({ url, title }: Props) {
   const [scale, setScale] = useState(1.2)
   const [containerWidth, setContainerWidth] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const containerRef = useCallback((node: HTMLDivElement | null) => {
     if (!node) return
@@ -91,9 +91,10 @@ export default function PdfReader({ url, title }: Props) {
         style={{ scrollbarColor: '#57534e #292524' }}
       >
         {error ? (
-          <div className="flex flex-col items-center justify-center h-full text-stone-400 gap-3">
+          <div className="flex flex-col items-center justify-center h-full text-stone-400 gap-3 py-20">
             <span className="text-5xl">📄</span>
             <p className="text-sm">No se pudo cargar el libro. Intenta de nuevo más tarde.</p>
+            <p className="text-xs text-stone-600 max-w-sm text-center font-mono">{error}</p>
           </div>
         ) : (
           <div className="flex flex-col items-center py-6 gap-4">
@@ -109,7 +110,7 @@ export default function PdfReader({ url, title }: Props) {
             <Document
               file={url}
               onLoadSuccess={onDocumentLoad}
-              onLoadError={() => { setError(true); setLoading(false) }}
+              onLoadError={(err) => { setError(err.message); setLoading(false) }}
               loading={null}
               className="flex flex-col items-center gap-4"
             >

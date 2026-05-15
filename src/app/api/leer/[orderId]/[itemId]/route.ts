@@ -59,7 +59,6 @@ export async function GET(
       'Content-Disposition': 'inline',
       'Cache-Control': 'private, no-store',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "default-src 'none'",
     },
   })
 }

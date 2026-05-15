@@ -17,6 +17,7 @@ const securityHeaders = [
       `img-src 'self' data: blob: https://${SUPABASE_HOST}`,
       "font-src 'self' data:",
       `connect-src 'self' https://${SUPABASE_HOST} wss://${SUPABASE_HOST}`,
+      "worker-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
