@@ -21,6 +21,9 @@ export default async function BookDetailPage({
 
   if (!book) notFound()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAuthenticated = !!(user?.email)
+
   const { data: comments } = await supabase
     .from('comment')
     .select('*, user:user(full_name)')
@@ -124,7 +127,7 @@ export default async function BookDetailPage({
           })()}
 
           <div className="mt-6">
-            <BuyButton bookId={book.id} />
+            <BuyButton bookId={book.id} isAuthenticated={isAuthenticated} />
           </div>
 
           <div className="mt-6 prose prose-stone prose-sm max-w-none">
