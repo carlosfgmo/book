@@ -10,9 +10,12 @@ export default async function EditarLibroPage({
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: book }, { data: categories }] = await Promise.all([
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const [{ data: book }, { data: categories }, { data: profile }] = await Promise.all([
     supabase.from('book').select('*').eq('id', id).single(),
     supabase.from('category').select('id, name').order('name'),
+    supabase.from('user').select('delivery_preference').eq('id', user!.id).single(),
   ])
 
   if (!book) notFound()
@@ -20,7 +23,7 @@ export default async function EditarLibroPage({
   return (
     <div className="max-w-2xl">
       <h1 className="text-2xl font-bold text-stone-900 mb-6">Editar libro</h1>
-      <BookForm categories={categories ?? []} book={book} />
+      <BookForm categories={categories ?? []} book={book} deliveryPreference={profile?.delivery_preference ?? 'platform'} />
     </div>
   )
 }

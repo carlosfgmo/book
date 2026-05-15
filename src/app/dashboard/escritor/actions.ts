@@ -35,6 +35,14 @@ export async function createBook(
   const stock = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
   const release_date = formData.get('release_date') as string || null
 
+  const hasPdf = delivery_type === 'pdf' || delivery_type === 'both'
+  if (hasPdf && !pdf_url) {
+    const { data: profile } = await supabase.from('user').select('delivery_preference').eq('id', user.id).single()
+    if (!profile || profile.delivery_preference === 'platform') {
+      return { error: 'Debes subir el archivo PDF antes de publicar. La plataforma necesita el archivo para gestionar la entrega.' }
+    }
+  }
+
   const { error } = await supabase.from('book').insert({
     author_id: user.id,
     title,
@@ -77,6 +85,14 @@ export async function updateBook(
   const pdf_url = formData.get('pdf_url') as string || null
   const stock = formData.get('stock') ? parseInt(formData.get('stock') as string) : null
   const release_date = formData.get('release_date') as string || null
+
+  const hasPdf = delivery_type === 'pdf' || delivery_type === 'both'
+  if (hasPdf && !pdf_url) {
+    const { data: profile } = await supabase.from('user').select('delivery_preference').eq('id', user.id).single()
+    if (!profile || profile.delivery_preference === 'platform') {
+      return { error: 'Debes subir el archivo PDF antes de guardar. La plataforma necesita el archivo para gestionar la entrega.' }
+    }
+  }
 
   const { error } = await supabase
     .from('book')

@@ -11,9 +11,10 @@ const inputClass =
 type Props = {
   categories: Pick<Category, 'id' | 'name'>[]
   book?: Book
+  deliveryPreference?: string
 }
 
-export default function BookForm({ categories, book }: Props) {
+export default function BookForm({ categories, book, deliveryPreference = 'platform' }: Props) {
   const action = book ? updateBook : createBook
   const [state, formAction, pending] = useActionState(action, null)
 
@@ -23,6 +24,7 @@ export default function BookForm({ categories, book }: Props) {
   const [uploadingPdf, setUploadingPdf] = useState(false)
   const [deliveryType, setDeliveryType] = useState(book?.delivery_type ?? 'pdf')
   const [status, setStatus] = useState(book?.status ?? 'draft')
+  const [clientError, setClientError] = useState('')
 
   const uploadFile = async (
     file: File,
@@ -42,8 +44,20 @@ export default function BookForm({ categories, book }: Props) {
     setLoading(false)
   }
 
+  const isPlatform = deliveryPreference === 'platform'
+  const hasPdfDelivery = deliveryType === 'pdf' || deliveryType === 'both'
+  const pdfRequired = isPlatform && hasPdfDelivery
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setClientError('')
+    if (pdfRequired && !pdfUrl) {
+      e.preventDefault()
+      setClientError('Debes subir el archivo PDF. La plataforma gestiona la entrega de este libro.')
+    }
+  }
+
   return (
-    <form action={formAction} className="space-y-5 bg-white rounded-xl border border-stone-200 p-6">
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-5 bg-white rounded-xl border border-stone-200 p-6">
       {book && <input type="hidden" name="id" value={book.id} />}
       <input type="hidden" name="cover_url" value={coverUrl} />
       <input type="hidden" name="pdf_url" value={pdfUrl} />
@@ -154,7 +168,12 @@ export default function BookForm({ categories, book }: Props) {
         {/* PDF */}
         {(deliveryType === 'pdf' || deliveryType === 'both') && (
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-stone-700 mb-1">Archivo PDF</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">
+              Archivo PDF
+              {pdfRequired && (
+                <span className="ml-1.5 text-xs text-red-500 font-normal">obligatorio</span>
+              )}
+            </label>
             <input
               type="file"
               accept=".pdf"
@@ -170,8 +189,10 @@ export default function BookForm({ categories, book }: Props) {
         )}
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{state.error}</p>
+      {(clientError || state?.error) && (
+        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
+          {clientError || state?.error}
+        </p>
       )}
 
       <button
