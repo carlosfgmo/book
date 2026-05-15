@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from 'react'
 import { submitPayment } from '@/app/(main)/actions'
-import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 
 type Method = 'yape' | 'plin' | 'bank_transfer'
@@ -66,13 +65,15 @@ export default function CheckoutForm({
     setPreview(URL.createObjectURL(file))
     setUploading(true)
     setClientError('')
-    const supabase = createClient()
-    const ext  = file.name.split('.').pop()
-    const path = `${orderId}/${Date.now()}.${ext}`
-    const { data, error } = await supabase.storage.from('vouchers').upload(path, file)
-    if (!error && data) {
-      const { data: urlData } = supabase.storage.from('vouchers').getPublicUrl(data.path)
-      setVoucherUrl(urlData.publicUrl)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('order_id', orderId)
+    const res  = await fetch('/api/upload-voucher', { method: 'POST', body: fd })
+    const json = await res.json()
+    if (json.url) {
+      setVoucherUrl(json.url)
+    } else {
+      setClientError('Error al subir el comprobante. Intenta de nuevo.')
     }
     setUploading(false)
   }
