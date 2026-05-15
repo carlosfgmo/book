@@ -162,7 +162,7 @@ export default function CheckoutForm({
           {isYapePlin ? (
             <div className="flex gap-6 items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm border border-amber-100 shrink-0">
-                <Image src="/yape/qr.png" alt="QR Yape" width={160} height={160} className="rounded-lg" style={{ width: 160, height: 160 }} priority />
+                <Image src="/yape/qr.png" alt="QR Yape" width={320} height={320} className="rounded-lg" style={{ width: 320, height: 320 }} priority />
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-amber-700">
