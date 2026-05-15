@@ -38,7 +38,7 @@ export default function ConfigForm({ profile }: { profile: Profile }) {
           Modo de entrega
         </label>
         <p className="text-xs text-stone-400 mb-3">
-          Define cómo gestionarás los pedidos de tus libros físicos.
+          Define cómo gestionarás los pedidos de tus libros.
         </p>
         <div className="space-y-2">
           <label className="flex items-start gap-3 p-3 rounded-lg border border-stone-200 cursor-pointer hover:bg-stone-50">
@@ -52,7 +52,7 @@ export default function ConfigForm({ profile }: { profile: Profile }) {
             <div>
               <p className="text-sm font-medium text-stone-800">La plataforma gestiona la entrega</p>
               <p className="text-xs text-stone-400 mt-0.5">
-                Achachaw Books coordina el envío al lector. Tú debes entregar los libros al courier.
+                Achachaw Books coordina el envío al lector. Tú debes entregar los libros a la plataforma.
               </p>
             </div>
           </label>
@@ -67,7 +67,7 @@ export default function ConfigForm({ profile }: { profile: Profile }) {
             <div>
               <p className="text-sm font-medium text-stone-800">Gestiono yo mismo los pedidos</p>
               <p className="text-xs text-stone-400 mt-0.5">
-                Tú contactas directamente al lector y coordinas el envío por tu cuenta.
+                Tú envías directamente al lector y coordinas el envío por tu cuenta.
               </p>
             </div>
           </label>
