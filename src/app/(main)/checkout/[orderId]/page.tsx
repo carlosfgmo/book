@@ -35,7 +35,7 @@ export default async function CheckoutPage({
     redirect(`/login?next=/checkout/${orderId}`)
   }
 
-  if (payment) redirect(`/pedidos/${orderId}`)
+  if (payment && realUserId) redirect(`/pedidos/${orderId}`)
 
   const bookIds = (orderItems ?? []).map((i: any) => i.book_id).filter(Boolean)
 
