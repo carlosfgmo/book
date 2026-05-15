@@ -61,25 +61,26 @@ export default async function EscritorPedidosPage() {
             const buyerEmail = order?.buyer_email ?? ''
             const buyerPhone = order?.buyer_phone ?? buyer?.phone ?? ''
 
+            const voucherUploaded = !!payment
+            const paymentRejected = payment?.status === 'rejected'
+            const delivered       = item.delivery_status === 'delivered'
+
+            const step1 = voucherUploaded
+            const step2 = paymentVerified
+            const step3 = delivered
+
             return (
               <div key={item.id} className="bg-white rounded-xl border border-stone-200 p-5">
-                <div className="flex items-start justify-between mb-3">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="font-semibold text-stone-800">{item.book?.title}</p>
-                    <p className="text-xs text-stone-400 mt-0.5">
-                      {dateStr} {timeStr}
-                    </p>
+                    <p className="text-xs text-stone-400 mt-0.5">{dateStr} {timeStr}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-stone-900">S/ {Number(item.unit_price).toFixed(2)}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      paymentVerified ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
-                    }`}>
-                      {paymentVerified ? 'Pago verificado' : 'Pago pendiente'}
-                    </span>
-                  </div>
+                  <p className="font-bold text-stone-900">S/ {Number(item.unit_price).toFixed(2)}</p>
                 </div>
 
+                {/* Buyer + delivery info */}
                 <div className="grid grid-cols-2 gap-3 text-sm mb-4">
                   <div>
                     <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Comprador</p>
@@ -88,10 +89,10 @@ export default async function EscritorPedidosPage() {
                     {buyerPhone && <p className="text-stone-500 text-xs">{buyerPhone}</p>}
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Entrega</p>
+                    <p className="text-xs font-medium text-stone-500 uppercase tracking-wide mb-1">Enviar por</p>
                     {(deliveryType === 'pdf' || deliveryType === 'both') && (
                       <p className="text-stone-800">
-                        PDF por {pdfMethod === 'whatsapp' ? `WhatsApp (${buyerPhone})` : `correo (${buyerEmail})`}
+                        PDF → {pdfMethod === 'whatsapp' ? `WhatsApp ${buyerPhone}` : `correo ${buyerEmail}`}
                       </p>
                     )}
                     {(deliveryType === 'physical' || deliveryType === 'both') && (
@@ -103,9 +104,66 @@ export default async function EscritorPedidosPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-stone-100 pt-3 flex items-center gap-2">
-                  <span className="text-xs text-stone-500">Estado de entrega:</span>
-                  <OrderStatusButton itemId={item.id} currentStatus={item.delivery_status} />
+                {/* Progress steps */}
+                <div className="border-t border-stone-100 pt-4">
+                  <div className="flex items-start gap-0">
+
+                    {/* Step 1 */}
+                    <div className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+                        step1 ? 'bg-blue-500 text-white' : 'bg-stone-200 text-stone-400'
+                      }`}>
+                        {step1 ? '✓' : '1'}
+                      </div>
+                      <p className={`text-xs text-center leading-tight ${step1 ? 'text-blue-600 font-medium' : 'text-stone-400'}`}>
+                        Voucher<br/>subido
+                      </p>
+                    </div>
+
+                    <div className={`flex-1 h-0.5 mt-3.5 ${step1 ? 'bg-blue-300' : 'bg-stone-200'}`} />
+
+                    {/* Step 2 */}
+                    <div className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+                        paymentRejected ? 'bg-red-500 text-white'
+                        : step2 ? 'bg-green-500 text-white'
+                        : step1 ? 'bg-amber-400 text-white'
+                        : 'bg-stone-200 text-stone-400'
+                      }`}>
+                        {paymentRejected ? '✕' : step2 ? '✓' : '2'}
+                      </div>
+                      <p className={`text-xs text-center leading-tight ${
+                        paymentRejected ? 'text-red-600 font-medium'
+                        : step2 ? 'text-green-600 font-medium'
+                        : step1 ? 'text-amber-600'
+                        : 'text-stone-400'
+                      }`}>
+                        Pago<br/>{paymentRejected ? 'rechazado' : step2 ? 'aprobado' : 'en revisión'}
+                      </p>
+                    </div>
+
+                    <div className={`flex-1 h-0.5 mt-3.5 ${step2 ? 'bg-green-300' : 'bg-stone-200'}`} />
+
+                    {/* Step 3 */}
+                    <div className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+                        step3 ? 'bg-green-500 text-white' : 'bg-stone-200 text-stone-400'
+                      }`}>
+                        {step3 ? '✓' : '3'}
+                      </div>
+                      <p className={`text-xs text-center leading-tight ${step3 ? 'text-green-600 font-medium' : 'text-stone-400'}`}>
+                        Libro<br/>{step3 ? 'entregado' : 'por entregar'}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  {/* Delivery action — only show when payment is verified */}
+                  {paymentVerified && (
+                    <div className="mt-4 flex justify-end">
+                      <OrderStatusButton itemId={item.id} currentStatus={item.delivery_status} />
+                    </div>
+                  )}
                 </div>
               </div>
             )

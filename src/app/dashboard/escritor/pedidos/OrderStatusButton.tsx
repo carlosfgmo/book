@@ -3,12 +3,6 @@
 import { useTransition } from 'react'
 import { updateOrderItemStatus } from '../actions'
 
-const transitions: Record<string, { next: string; label: string }> = {
-  pending:    { next: 'processing', label: 'Marcar en proceso' },
-  processing: { next: 'delivered',  label: 'Marcar entregado' },
-  delivered:  { next: 'delivered',  label: 'Entregado ✓' },
-}
-
 export default function OrderStatusButton({
   itemId,
   currentStatus,
@@ -17,19 +11,34 @@ export default function OrderStatusButton({
   currentStatus: string
 }) {
   const [pending, startTransition] = useTransition()
-  const t = transitions[currentStatus] ?? transitions.pending
+  const delivered = currentStatus === 'delivered'
+
+  function toggle() {
+    const next = delivered ? 'pending' : 'delivered'
+    startTransition(() => updateOrderItemStatus(itemId, next))
+  }
 
   return (
     <button
-      disabled={pending || currentStatus === 'delivered'}
-      onClick={() => startTransition(() => updateOrderItemStatus(itemId, t.next))}
-      className={`text-xs px-3 py-1 rounded-lg font-medium transition-colors ${
-        currentStatus === 'delivered'
-          ? 'bg-green-50 text-green-700 cursor-default'
+      disabled={pending}
+      onClick={toggle}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${
+        delivered
+          ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
           : 'bg-stone-900 text-white hover:bg-stone-700'
-      } disabled:opacity-60`}
+      }`}
     >
-      {pending ? 'Actualizando...' : t.label}
+      {pending ? (
+        'Actualizando...'
+      ) : delivered ? (
+        <>
+          <span>✓</span> Entregado — clic para deshacer
+        </>
+      ) : (
+        <>
+          <span>📦</span> Marcar como entregado
+        </>
+      )}
     </button>
   )
 }
