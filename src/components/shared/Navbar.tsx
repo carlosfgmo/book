@@ -54,9 +54,15 @@ export default async function Navbar({ activeSection }: { activeSection?: string
         {/* Search */}
         <form action="/" className="hidden sm:flex items-center flex-1 max-w-xs">
           <div className="relative w-full">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-            </svg>
+            <button
+              type="submit"
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-0 border-none bg-transparent cursor-pointer text-stone-400 hover:text-stone-700 transition-colors"
+              aria-label="Buscar"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              </svg>
+            </button>
             <input
               name="buscar"
               placeholder="Títulos, autores..."

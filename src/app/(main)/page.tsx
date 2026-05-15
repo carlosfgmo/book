@@ -38,14 +38,27 @@ export default async function CatalogPage({
 
   const supabase = await createClient()
 
+  // Accent- and case-insensitive search via unaccent RPC (also searches author name)
+  let searchIds: string[] | null = null
+  if (buscar) {
+    const { data: matches } = await supabase.rpc('search_books_unaccent', { q: buscar })
+    searchIds = (matches ?? []).map((r: { id: string }) => r.id)
+  }
+
   function buildBooksQuery(withSortOrder: boolean) {
     let q = supabase
       .from('book')
       .select('*, author:user(full_name), category(name, slug)')
       .in('status', ['published', 'presale'])
 
+    if (searchIds !== null) {
+      if (searchIds.length === 0) {
+        q = q.eq('id', '00000000-0000-0000-0000-000000000000') // force empty result
+      } else {
+        q = q.in('id', searchIds)
+      }
+    }
     if (categoria)  q = q.eq('category.slug', categoria)
-    if (buscar)     q = q.ilike('title', `%${buscar}%`)
     if (precio_max) q = q.lte('price', Number(precio_max))
     if (seccion === 'preventa') q = q.eq('status', 'presale')
 
