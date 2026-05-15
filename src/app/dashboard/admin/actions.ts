@@ -4,11 +4,25 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function verifyPayment(paymentId: string, orderId: string, approved: boolean) {
+const VALID_ROLES = ['reader', 'writer', 'admin'] as const
+
+async function requireAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) throw new Error('No autenticado')
 
+  const { data: profile } = await supabase
+    .from('user')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.role?.includes('admin')) throw new Error('No autorizado')
+  return user
+}
+
+export async function verifyPayment(paymentId: string, orderId: string, approved: boolean) {
+  const user = await requireAdmin()
   const admin = createAdminClient()
 
   await admin
@@ -21,7 +35,6 @@ export async function verifyPayment(paymentId: string, orderId: string, approved
     .eq('id', paymentId)
 
   if (approved) {
-    // Activar entrega de ítems
     await admin
       .from('order_item')
       .update({ delivery_status: 'processing' })
@@ -42,17 +55,24 @@ export async function verifyPayment(paymentId: string, orderId: string, approved
 }
 
 export async function toggleCommentVisibility(commentId: string, visible: boolean) {
+  await requireAdmin()
   const admin = createAdminClient()
   await admin.from('comment').update({ is_visible: visible }).eq('id', commentId)
   revalidatePath('/dashboard/admin/moderacion')
 }
 
 export async function setUserRole(userId: string, role: string, add: boolean) {
-  const admin = createAdminClient()
-  const { data: user } = await admin.from('user').select('role').eq('id', userId).single()
-  if (!user) return
+  await requireAdmin()
 
-  const roles: string[] = user.role ?? []
+  if (!VALID_ROLES.includes(role as typeof VALID_ROLES[number])) {
+    throw new Error('Rol inválido')
+  }
+
+  const admin = createAdminClient()
+  const { data: target } = await admin.from('user').select('role').eq('id', userId).single()
+  if (!target) return
+
+  const roles: string[] = target.role ?? []
   const updated = add
     ? [...new Set([...roles, role])]
     : roles.filter((r: string) => r !== role)

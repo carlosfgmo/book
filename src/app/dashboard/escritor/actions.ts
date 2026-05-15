@@ -59,7 +59,7 @@ export async function createBook(
     release_date: release_date || null,
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: 'Error al publicar el libro.' }
 
   revalidatePath('/dashboard/escritor')
   redirect('/dashboard/escritor')
@@ -100,7 +100,7 @@ export async function updateBook(
     .eq('id', id)
     .eq('author_id', user.id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: 'Error al guardar los cambios.' }
 
   revalidatePath('/dashboard/escritor')
   redirect('/dashboard/escritor')
@@ -119,17 +119,17 @@ export async function updateOrderItemStatus(itemId: string, status: string): Pro
     .eq('id', itemId)
     .single()
 
-  if (fetchError) return { error: fetchError.message }
+  if (fetchError) return { error: 'Error al obtener el pedido.' }
 
   const book = Array.isArray(item?.book) ? item.book[0] : item?.book as { author_id: string } | null
-  if (book?.author_id !== user.id) return { error: `No autorizado: author=${book?.author_id} user=${user.id}` }
+  if (book?.author_id !== user.id) return { error: 'No autorizado.' }
 
   const { error: updateError } = await admin
     .from('order_item')
     .update({ delivery_status: status })
     .eq('id', itemId)
 
-  if (updateError) return { error: updateError.message }
+  if (updateError) return { error: 'Error al actualizar el estado.' }
 
   // Update order status based on delivery
   const orderId = (await admin.from('order_item').select('order_id').eq('id', itemId).single()).data?.order_id
