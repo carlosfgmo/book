@@ -53,7 +53,7 @@ export default async function LiquidacionesPage({
       const author = (item.book as any)?.author
       if (!author) continue
 
-      const row = byWriter.get(author.id) ?? {
+      const row: WriterRow = byWriter.get(author.id) ?? {
         writerId: author.id,
         fullName: author.full_name,
         phone: author.phone ?? null,
