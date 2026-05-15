@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import DeleteOrderButton from '../DeleteOrderButton'
@@ -23,20 +24,21 @@ export default async function OrderDetailPage({
 }) {
   const { orderId } = await params
   const supabase = await createClient()
+  const admin    = createAdminClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/login?next=/pedidos/${orderId}`)
 
-  const { data: order } = await supabase
+  const { data: order } = await admin
     .from('order')
     .select('*, items:order_item(*, book(title, cover_url, delivery_type, slug))')
     .eq('id', orderId)
-    .eq('buyer_id', user.id)
     .single()
 
-  if (!order) notFound()
+  // Ensure this order belongs to the logged-in user
+  if (!order || order.buyer_id !== user.id) notFound()
 
-  const { data: payment } = await supabase
+  const { data: payment } = await admin
     .from('payment')
     .select('status, method, amount, operation_number, voucher_url, created_at')
     .eq('order_id', orderId)

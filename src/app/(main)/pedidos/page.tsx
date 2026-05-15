@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DeleteOrderButton from './DeleteOrderButton'
@@ -13,10 +14,11 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 
 export default async function PedidosPage() {
   const supabase = await createClient()
+  const admin    = createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: orders } = await supabase
+  const { data: orders } = await admin
     .from('order')
     .select('*, items:order_item(book(title, cover_url))')
     .eq('buyer_id', user.id)
