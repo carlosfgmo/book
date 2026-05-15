@@ -27,6 +27,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const adminLinks = [
     { href: '/dashboard/admin', label: 'Panel' },
     { href: '/dashboard/admin/pagos', label: 'Cola de pagos' },
+    { href: '/dashboard/admin/liquidaciones', label: 'Liquidaciones' },
     { href: '/dashboard/admin/moderacion', label: 'Moderación' },
   ]
 

@@ -19,6 +19,7 @@ export default async function AdminDashboard() {
     { count: totalBooks },
     { count: pendingComments },
     { data: recentPayments },
+    { data: pendingLiquidations },
   ] = await Promise.all([
     admin.from('payment').select('id', { count: 'exact' }).eq('status', 'pending'),
     admin.from('user').select('id', { count: 'exact' }),
@@ -28,7 +29,13 @@ export default async function AdminDashboard() {
       id, status, method, amount, created_at,
       order:order(id, total, buyer:user(full_name))
     `).eq('status', 'pending').order('created_at').limit(5),
+    admin.from('payment').select('id, amount, order:order(items:order_item(unit_price))').eq('status', 'verified').eq('writer_paid', false),
   ])
+
+  const pendingWriterAmount = (pendingLiquidations ?? []).reduce((sum, p) => {
+    const itemTotal = ((p.order as any)?.items ?? []).reduce((s: number, i: any) => s + Number(i.unit_price), 0)
+    return sum + itemTotal * 0.85
+  }, 0)
 
   const methodLabel: Record<string, string> = { yape: 'Yape', plin: 'Plin', bank_transfer: 'Transferencia' }
 
@@ -39,20 +46,24 @@ export default async function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Pagos pendientes', value: pendingPayments ?? 0, alert: (pendingPayments ?? 0) > 0, href: '/dashboard/admin/pagos' },
-          { label: 'Usuarios', value: totalUsers ?? 0, alert: false, href: null },
-          { label: 'Libros activos', value: totalBooks ?? 0, alert: false, href: null },
-          { label: 'Comentarios ocultos', value: pendingComments ?? 0, alert: false, href: '/dashboard/admin/moderacion' },
+          { label: 'Pagos pendientes', value: pendingPayments ?? 0, alert: (pendingPayments ?? 0) > 0, href: '/dashboard/admin/pagos', money: false },
+          { label: 'Por pagar escritores', value: pendingWriterAmount, alert: pendingWriterAmount > 0, href: '/dashboard/admin/liquidaciones', money: true },
+          { label: 'Libros activos', value: totalBooks ?? 0, alert: false, href: null, money: false },
+          { label: 'Comentarios ocultos', value: pendingComments ?? 0, alert: false, href: '/dashboard/admin/moderacion', money: false },
         ].map((s) => (
           <div key={s.label} className={`bg-white rounded-xl border p-4 ${s.alert ? 'border-amber-300' : 'border-stone-200'}`}>
             {s.href ? (
               <Link href={s.href}>
-                <p className={`text-2xl font-bold ${s.alert ? 'text-amber-600' : 'text-stone-900'}`}>{s.value}</p>
+                <p className={`text-2xl font-bold ${s.alert ? 'text-amber-600' : 'text-stone-900'}`}>
+                  {s.money ? `S/ ${(s.value as number).toFixed(2)}` : s.value}
+                </p>
                 <p className="text-xs text-stone-500 mt-0.5 hover:underline">{s.label}</p>
               </Link>
             ) : (
               <>
-                <p className="text-2xl font-bold text-stone-900">{s.value}</p>
+                <p className="text-2xl font-bold text-stone-900">
+                  {s.money ? `S/ ${(s.value as number).toFixed(2)}` : s.value}
+                </p>
                 <p className="text-xs text-stone-500 mt-0.5">{s.label}</p>
               </>
             )}

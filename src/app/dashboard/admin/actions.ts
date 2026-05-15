@@ -61,6 +61,21 @@ export async function toggleCommentVisibility(commentId: string, visible: boolea
   revalidatePath('/dashboard/admin/moderacion')
 }
 
+export async function markWriterLiquidated(paymentIds: string[]) {
+  await requireAdmin()
+  if (!paymentIds.length) return
+
+  const admin = createAdminClient()
+  await admin
+    .from('payment')
+    .update({ writer_paid: true, writer_paid_at: new Date().toISOString() })
+    .in('id', paymentIds)
+    .eq('status', 'verified')
+    .eq('writer_paid', false)
+
+  revalidatePath('/dashboard/admin/liquidaciones')
+}
+
 export async function setUserRole(userId: string, role: string, add: boolean) {
   await requireAdmin()
 
