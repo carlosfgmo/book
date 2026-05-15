@@ -81,7 +81,7 @@ export default async function PagosAdminPage({
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-bold text-stone-900">S/ {Number(payment.amount).toFixed(2)}</p>
-                    <p className="text-xs text-stone-400">{new Date(payment.created_at).toLocaleDateString('es-PE')}</p>
+                    <p className="text-xs text-stone-400">{new Date(payment.created_at).toLocaleDateString('es-PE', { timeZone: 'America/Lima' })}</p>
                   </div>
                 </div>
 

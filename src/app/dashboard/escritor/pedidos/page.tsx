@@ -51,8 +51,9 @@ export default async function EscritorPedidosPage() {
             const paymentVerified = payment?.status === 'verified'
 
             const dt = order?.created_at ? new Date(order.created_at) : null
-            const dateStr = dt?.toLocaleDateString('es-PE') ?? ''
-            const timeStr = dt?.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) ?? ''
+            const tz = { timeZone: 'America/Lima' }
+            const dateStr = dt?.toLocaleDateString('es-PE', tz) ?? ''
+            const timeStr = dt?.toLocaleTimeString('es-PE', { ...tz, hour: '2-digit', minute: '2-digit' }) ?? ''
 
             const deliveryType = item.book?.delivery_type
             const pdfMethod = order?.pdf_delivery_method
