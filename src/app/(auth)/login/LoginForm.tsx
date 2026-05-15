@@ -24,9 +24,11 @@ export default function LoginForm({
 
   const header = embedded ? null : (
     <div className="text-center mb-8">
-      <div className="text-5xl mb-3">📚</div>
-      <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Achachaw Books</h1>
-      <p className="text-stone-500 text-sm mt-1">Libros independientes del Perú</p>
+      <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+        <div className="text-5xl mb-3">📚</div>
+        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Achachaw Books</h1>
+        <p className="text-stone-500 text-sm mt-1">Libros independientes del Perú</p>
+      </Link>
     </div>
   )
 
