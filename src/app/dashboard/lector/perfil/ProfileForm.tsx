@@ -12,13 +12,24 @@ type Props = {
     phone: string | null
     address: string | null
   }
+  email: string
 }
 
-export default function ProfileForm({ profile }: Props) {
+export default function ProfileForm({ profile, email }: Props) {
   const [state, formAction, pending] = useActionState(updateProfile, null)
 
   return (
     <form action={formAction} className="space-y-5 bg-white rounded-xl border border-stone-200 p-6">
+      <div>
+        <label className="block text-sm font-medium text-stone-700 mb-1">Correo electrónico</label>
+        <input
+          value={email}
+          readOnly
+          className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg bg-stone-50 text-stone-400 cursor-not-allowed"
+        />
+        <p className="text-xs text-stone-400 mt-0.5">No se puede cambiar</p>
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-stone-700 mb-1">Nombre completo *</label>
         <input

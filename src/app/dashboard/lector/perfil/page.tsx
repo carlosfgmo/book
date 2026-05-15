@@ -24,6 +24,7 @@ export default async function PerfilPage() {
           phone: profile?.phone ?? null,
           address: profile?.address ?? null,
         }}
+        email={user!.email ?? ''}
       />
     </div>
   )
