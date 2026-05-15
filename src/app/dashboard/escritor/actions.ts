@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -94,7 +95,19 @@ export async function updateOrderItemStatus(itemId: string, status: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase
+  const admin = createAdminClient()
+
+  // Verify the writer owns the book in this order item
+  const { data: item } = await admin
+    .from('order_item')
+    .select('book(author_id)')
+    .eq('id', itemId)
+    .single()
+
+  const book = item?.book as { author_id: string } | null
+  if (book?.author_id !== user.id) return
+
+  await admin
     .from('order_item')
     .update({ delivery_status: status })
     .eq('id', itemId)
