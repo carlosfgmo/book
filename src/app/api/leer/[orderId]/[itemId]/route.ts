@@ -49,11 +49,26 @@ export async function GET(
 
   if (!pdfUrl) return new NextResponse('No PDF available', { status: 404 })
 
-  // Fetch PDF server-side — never expose the storage URL to the client
-  const upstream = await fetch(pdfUrl, { cache: 'no-store' })
-  if (!upstream.ok) return new NextResponse('PDF unavailable', { status: 502 })
+  // Extract bucket + storage path from the stored URL
+  // Format: https://{project}.supabase.co/storage/v1/object/public/{bucket}/{path}
+  let bucket: string
+  let storagePath: string
+  try {
+    const match = new URL(pdfUrl).pathname.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)/)
+    if (!match) throw new Error('bad url')
+    bucket = match[1]
+    storagePath = match[2]
+  } catch {
+    return new NextResponse('Invalid PDF URL', { status: 500 })
+  }
 
-  return new NextResponse(upstream.body, {
+  // Use admin client to download — bypasses bucket RLS regardless of policy
+  const { data: fileBlob, error: dlError } = await admin.storage.from(bucket).download(storagePath)
+  if (dlError || !fileBlob) return new NextResponse('PDF unavailable', { status: 502 })
+
+  const buffer = await fileBlob.arrayBuffer()
+
+  return new NextResponse(buffer, {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'inline',
