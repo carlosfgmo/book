@@ -176,9 +176,9 @@ export default function CheckoutForm({
           ) : (
             <div className="space-y-3">
               <div className="bg-white rounded-lg p-4 border border-amber-100 space-y-2 text-sm text-amber-700">
-                <p><strong>BCP:</strong> 191-123456789-0-12</p>
-                <p><strong>Interbank:</strong> 003-3000123456</p>
-                <p><strong>CCI BCP:</strong> 00219100123456789012</p>
+                <p><strong>Caja Arequipa:</strong> 00516036402100001012</p>
+                <p><strong>Interbank:</strong> 8983334298878</p>
+                <p><strong>CCI:</strong> 003-898-013334298878-48</p>
               </div>
               <p className="text-sm text-amber-700">
                 Monto exacto:{' '}
