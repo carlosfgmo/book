@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import BuyButton from './BuyButton'
 import CommentForm from './CommentForm'
 import CoverZoom from './CoverZoom'
+import BookSummarySection from '@/components/catalogo/BookSummarySection'
 
 export default async function BookDetailPage({
   params,
@@ -144,6 +145,8 @@ export default async function BookDetailPage({
               {book.description}
             </p>
           </div>
+
+          <BookSummarySection raw={book.summary} />
         </div>
       </div>
 

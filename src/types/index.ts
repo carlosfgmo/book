@@ -30,6 +30,7 @@ export interface Book {
   title: string
   slug: string
   description: string
+  summary: string | null
   price: number
   presale_price: number | null
   status: BookStatus

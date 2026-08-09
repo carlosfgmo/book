@@ -25,6 +25,7 @@ export async function createBook(
   const title = formData.get('title') as string
   const slug = (formData.get('slug') as string) || slugify(title)
   const description = formData.get('description') as string
+  const summary       = formData.get('summary') as string || null
   const category_id = formData.get('category_id') as string || null
   const price = parseFloat(formData.get('price') as string)
   const presale_price = formData.get('presale_price') ? parseFloat(formData.get('presale_price') as string) : null
@@ -49,6 +50,7 @@ export async function createBook(
     title,
     slug,
     description,
+    summary,
     category_id,
     price,
     presale_price,
@@ -78,6 +80,7 @@ export async function updateBook(
   const id = formData.get('id') as string
   const title = formData.get('title') as string
   const description = formData.get('description') as string
+  const summary       = formData.get('summary') as string || null
   const category_id = formData.get('category_id') as string || null
   const price = parseFloat(formData.get('price') as string)
   const presale_price = formData.get('presale_price') ? parseFloat(formData.get('presale_price') as string) : null
@@ -99,7 +102,7 @@ export async function updateBook(
 
   const { error } = await supabase
     .from('book')
-    .update({ title, description, category_id, price, presale_price, status, delivery_type, cover_url, back_cover_url, pdf_url, stock, release_date: release_date || null })
+    .update({ title, description, summary, category_id, price, presale_price, status, delivery_type, cover_url, back_cover_url, pdf_url, stock, release_date: release_date || null })
     .eq('id', id)
     .eq('author_id', user.id)
 

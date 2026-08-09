@@ -89,6 +89,25 @@ export default function BookForm({ categories, book, deliveryPreference = 'platf
           />
         </div>
 
+        <div className="col-span-2">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            Resumen detallado
+            <span className="ml-1.5 text-xs text-stone-400 font-normal">(opcional, se muestra debajo de la sinopsis)</span>
+          </label>
+          <textarea
+            name="summary"
+            rows={8}
+            defaultValue={book?.summary ?? ''}
+            className={`${inputClass} resize-y font-mono text-xs`}
+            placeholder={'## Parte 1: Título de la parte\n\n### 01. Título del capítulo\nSubtítulo del capítulo\n- Encabezado de la tarjeta: línea 1 | línea 2\n\n> Cita de cierre del capítulo'}
+          />
+          <p className="text-xs text-stone-400 mt-0.5">
+            Usa <code>## Parte</code> para cada parte, <code>### 01. Título</code> para cada capítulo, la línea
+            siguiente como subtítulo, <code>- Encabezado: texto | texto</code> para cada tarjeta y{' '}
+            <code>&gt; cita</code> para la cita de cierre del capítulo.
+          </p>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">Categoría</label>
           <select name="category_id" defaultValue={book?.category_id ?? ''} className={inputClass}>
