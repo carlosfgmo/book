@@ -39,7 +39,8 @@ export function parseBookSummary(raw: string): SummaryPart[] {
     if (!line) continue
 
     if (line.startsWith('## ')) {
-      currentPart = { title: line.slice(3).trim(), color: PART_COLORS[parts.length % PART_COLORS.length], chapters: [] }
+      const title = line.slice(3).trim().replace(/^parte\s+\d+\s*[:.\-]\s*/i, '')
+      currentPart = { title, color: PART_COLORS[parts.length % PART_COLORS.length], chapters: [] }
       parts.push(currentPart)
       currentChapter = null
       expectSubtitle = false
