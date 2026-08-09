@@ -35,7 +35,7 @@ export default function BookSummarySection({ raw }: { raw: string | null | undef
                 </div>
 
                 {chapter.cards.length > 0 && (
-                  <div className="grid sm:grid-cols-2 gap-3 mt-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
                     {chapter.cards.map((card, k) => (
                       <div key={k} className="bg-stone-50 rounded-xl p-3">
                         {card.heading && (

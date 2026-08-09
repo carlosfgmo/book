@@ -145,10 +145,10 @@ export default async function BookDetailPage({
               {book.description}
             </p>
           </div>
-
-          <BookSummarySection raw={book.summary} />
         </div>
       </div>
+
+      <BookSummarySection raw={book.summary} />
 
       {/* Comentarios */}
       <div className="mt-12 border-t border-stone-200 pt-8">
