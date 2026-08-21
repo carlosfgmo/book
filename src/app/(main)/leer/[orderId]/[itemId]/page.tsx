@@ -34,12 +34,18 @@ export default async function LeerPage({
 
   const { data: item } = await admin
     .from('order_item')
-    .select('id, book(title, delivery_type, pdf_url)')
+    .select('id, delivery_status, book(title, delivery_type, pdf_url)')
     .eq('id', itemId)
     .eq('order_id', orderId)
     .single()
 
   if (!item) notFound()
+
+  // H-01 fix: verify the specific item is delivered — prevents accessing PDFs
+  // by manipulating order.status directly via the Supabase anon client.
+  if (item.delivery_status !== 'delivered') {
+    redirect(`/pedidos/${orderId}`)
+  }
 
   const book = Array.isArray(item.book) ? item.book[0] : item.book as any
 

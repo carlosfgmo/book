@@ -23,7 +23,7 @@ export async function GET(
   // Verify: order belongs to user + item belongs to order + book has PDF
   const { data: item } = await admin
     .from('order_item')
-    .select('id, order_id, book(pdf_url, delivery_type)')
+    .select('id, order_id, delivery_status, book(pdf_url, delivery_type)')
     .eq('id', itemId)
     .eq('order_id', orderId)
     .single()
@@ -42,6 +42,12 @@ export async function GET(
 
   if (order.status !== 'completed' && order.status !== 'processing') {
     return new NextResponse('Payment not verified', { status: 402 })
+  }
+
+  // H-01 fix: verify the specific item is delivered — prevents accessing PDFs
+  // by manipulating order.status directly via the Supabase anon client.
+  if (item.delivery_status !== 'delivered') {
+    return new NextResponse('Book not yet delivered', { status: 402 })
   }
 
   const book = Array.isArray(item.book) ? item.book[0] : item.book as any

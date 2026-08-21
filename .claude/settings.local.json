@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\(''''puppeteer''''\\)\")",
+      "Bash(node -e \"require\\(''''playwright''''\\)\")",
+      "Bash(where wkhtmltopdf:*)",
+      "Bash(npm list:*)",
+      "Bash(where chromium:*)",
+      "Bash(where chrome:*)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
+      "Bash(\"C:/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --disable-gpu --no-sandbox --print-to-pdf=\"d:/fApps/book/docs/auditoria_seguridad_01.pdf\" --print-to-pdf-no-header --no-margins \"d:/fApps/book/docs/_auditoria_temp.html\")"
+    ]
+  }
+}

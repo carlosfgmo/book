@@ -83,14 +83,6 @@ export default async function OrderDetailPage({
                     >
                       Leer ahora
                     </Link>
-                    {item.download_token && (
-                      <a
-                        href={`/api/download/${item.download_token}`}
-                        className="text-xs text-stone-400 hover:text-stone-600 underline transition-colors"
-                      >
-                        Descargar PDF
-                      </a>
-                    )}
                   </div>
                 )}
               </div>

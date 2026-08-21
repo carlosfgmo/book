@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 
 export async function login(
   _prevState: { error?: string } | null,
@@ -63,10 +62,9 @@ export async function forgotPassword(
 ) {
   const supabase = await createClient()
   const email = (formData.get('email') as string).trim()
-  const headersList = await headers()
-  const host = headersList.get('host') ?? 'localhost:3000'
-  const proto = headersList.get('x-forwarded-proto') ?? 'http'
-  const origin = `${proto}://${host}`
+  // H-08 fix: use a fixed env var instead of client-supplied Host header,
+  // which could be spoofed in non-Vercel environments.
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/api/auth/callback?next=/reset-password`,

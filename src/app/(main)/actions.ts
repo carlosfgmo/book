@@ -84,7 +84,7 @@ export async function submitPayment(
   // Verify order exists and ownership
   const { data: existingOrder } = await admin
     .from('order')
-    .select('id, buyer_id')
+    .select('id, buyer_id, total')
     .eq('id', orderId)
     .single()
 
@@ -93,6 +93,24 @@ export async function submitPayment(
   const realUserId = user?.email ? user.id : null
   if (existingOrder.buyer_id && existingOrder.buyer_id !== realUserId) {
     return { error: 'No autorizado.' }
+  }
+
+  // H-04 fix: use the amount stored in the DB — never trust the client-submitted value.
+  const verifiedAmount = Number(existingOrder.total)
+  if (verifiedAmount <= 0) return { error: 'No se pudo verificar el monto del pedido.' }
+
+  // H-06 fix: limit anonymous pending orders per email to prevent spam.
+  if (!existingOrder.buyer_id) {
+    const { count: pendingCount } = await admin
+      .from('order')
+      .select('id', { count: 'exact', head: true })
+      .eq('buyer_email', buyerEmail)
+      .eq('status', 'pending')
+      .is('buyer_id', null)
+
+    if ((pendingCount ?? 0) >= 5) {
+      return { error: 'Hay demasiados pedidos pendientes con este correo. Completa o cancela los anteriores.' }
+    }
   }
 
   // Update order with contact info
@@ -110,7 +128,7 @@ export async function submitPayment(
   const { error } = await admin.from('payment').insert({
     order_id: orderId,
     method,
-    amount: parseFloat(amount),
+    amount: verifiedAmount,
     operation_number: operationNumber,
     voucher_url: voucherUrl,
     status: 'pending',
